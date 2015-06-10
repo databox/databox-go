@@ -4,6 +4,6 @@ all: test
 #	go test -run "TestCheckin*" ./client
 
 test:
-	go test ./... -p=1 -gcflags "-N -l"
+	go test ./... -v -p=1 -gcflags "-N -l"
 build:
 	go build ./...
