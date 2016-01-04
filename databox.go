@@ -10,7 +10,7 @@ import (
 
 const (
 	apiUrl = "https://push2new.databox.com"
-	clientVersion = "0.0.1"
+	clientVersion = "0.1.1"
 )
 
 type Client struct {
@@ -35,13 +35,13 @@ func NewClient(pushToken string) *Client {
 	}
 }
 
-type ResponseStatus	struct {
+type ResponseStatus    struct {
 	Status string `json:"status"`
 }
 
 var postRequest = func(client *Client, path string, payload []byte) ([]byte, error) {
-	userAgent := "Databox/"+clientVersion+" ("+runtime.Version()+")"
-	request, err := http.NewRequest("POST", (apiUrl +  path), bytes.NewBuffer(payload))
+	userAgent := "Databox/" + clientVersion + " (" + runtime.Version() + ")"
+	request, err := http.NewRequest("POST", (apiUrl + path), bytes.NewBuffer(payload))
 	request.Header.Set("User-Agent", userAgent)
 	request.Header.Set("Content-Type", "application/json")
 	request.SetBasicAuth(client.PushToken, "")
@@ -85,7 +85,7 @@ func (client *Client) Push(kpi *KPI) (*ResponseStatus, error) {
 /* Serialisation */
 func (kpi *KPI) ToJsonData() (map[string]interface{}) {
 	var payload = make(map[string]interface{})
-	payload["$"+kpi.Key] = kpi.Value
+	payload["$" + kpi.Key] = kpi.Value
 
 	if kpi.Date != "" {
 		payload["date"] = kpi.Date
