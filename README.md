@@ -6,8 +6,10 @@ Go wrapper for [Databox](http://databox.com) - Mobile Executive Dashboard.
 
 ## Installation
 
-  go install github.com/databox/databox-go
-  go get github.com/databox/databox-go # or this. :)
+```bash
+go install github.com/databox/databox-go
+go get github.com/databox/databox-go # or this. :)
+```
 
 ## Usage
 ```go
