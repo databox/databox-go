@@ -4,7 +4,12 @@
 
 Go wrapper for [Databox](http://databox.com) - Mobile Executive Dashboard.
 
-# Usage
+## Installation
+
+  go install github.com/databox/databox-go
+  go get github.com/databox/databox-go # or this. :)
+
+## Usage
 ```go
 package main
 
@@ -31,6 +36,5 @@ func main() {
 
 ```
 
-# Author
+## Author
 - [Oto Brglez](https://github.com/otobrglez)
-
