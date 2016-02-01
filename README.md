@@ -34,6 +34,28 @@ func main() {
     if data, _ := client.LastPush() ; data != nil {
         fmt.Println(string(data))
     }
+    
+    // Additional attributes
+    var attributes = make(map[string]interface{})
+    attributes["test.number"] = 10
+    attributes["test.string"] = "Oto Brglez"
+    
+	if status, _ := client.Push(&KPI{
+		Key: "testing.this",
+		Value: 10.0,
+		Date: time.Now().Format(time.RFC3339),
+		Attributes: attributes,
+	}); status.Status == "ok" {
+		t.Error("This status must be ok")
+	}
+    
+    // Retriving last push
+    lastPush, err := client.LastPush()
+    if err != nil {
+        t.Error("Error was raised", err)
+    }
+ 
+    fmt.Println("Number of errors in last push", lastPush.NumberOfErrors) 
 }
 
 ```
