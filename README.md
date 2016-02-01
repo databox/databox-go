@@ -34,6 +34,14 @@ func main() {
     if data, _ := client.LastPush() ; data != nil {
         fmt.Println(string(data))
     }
+    
+    // Retriving last push
+    lastPush, err := client.LastPush()
+    if err != nil {
+        t.Error("Error was raised", err)
+    }
+ 
+    fmt.Println("Number of errors in last push", lastPush.NumberOfErrors) 
 }
 
 ```
