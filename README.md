@@ -68,5 +68,5 @@ func main() {
 
 [BuildStatus-Url]: https://travis-ci.org/databox/databox-go
 [BuildStatus-Image]: https://travis-ci.org/databox/databox-go.svg                     
-[ReportCard-Url]: http://goreportcard.com/databox/databox-go/s
-[ReportCard-Image]: http://goreportcard.com/databox/databox-go/s
+[ReportCard-Url]: http://goreportcard.com/report/databox/databox-go
+[ReportCard-Image]: http://goreportcard.com/badge/databox/databox-go
