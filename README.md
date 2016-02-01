@@ -1,8 +1,10 @@
 # Databox bindings for Go
 
-[![Build Status](https://travis-ci.org/databox/databox-go.svg)](https://travis-ci.org/databox/databox-go)
-
 Go wrapper for [Databox](http://databox.com) - Mobile Executive Dashboard.
+
+[![Build Status][BuildStatus-Image]][BuildStatus-Url]
+[![ReportCard][ReportCard-Image]][ReportCard-Url]
+
 
 ## Installation
 
@@ -62,3 +64,9 @@ func main() {
 
 ## Author
 - [Oto Brglez](https://github.com/otobrglez)
+
+
+[BuildStatus-Url]: https://travis-ci.org/databox/databox-go
+[BuildStatus-Image]: https://travis-ci.org/databox/databox-go.svg                     
+[ReportCard-Url]: http://goreportcard.com/databox/databox-go/s
+[ReportCard-Image]: http://goreportcard.com/databox/databox-go/s
