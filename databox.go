@@ -22,6 +22,7 @@ type KPI struct {
 	Key   string
 	Value float32
 	Date  string
+	Attributes map[string]interface{}
 }
 
 type KPIWrap struct {
