@@ -5,7 +5,6 @@ Go wrapper for [Databox](http://databox.com) - Mobile Executive Dashboard.
 [![Build Status][BuildStatus-Image]][BuildStatus-Url]
 [![ReportCard][ReportCard-Image]][ReportCard-Url]
 
-
 ## Installation
 
 ```bash
@@ -65,8 +64,8 @@ func main() {
 ## Author
 - [Oto Brglez](https://github.com/otobrglez)
 
-
 [BuildStatus-Url]: https://travis-ci.org/databox/databox-go
 [BuildStatus-Image]: https://travis-ci.org/databox/databox-go.svg                     
 [ReportCard-Url]: http://goreportcard.com/report/databox/databox-go
 [ReportCard-Image]: http://goreportcard.com/badge/databox/databox-go
+
