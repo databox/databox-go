@@ -1,18 +1,18 @@
 package databox
 
 import (
-	"net/http"
 	"bytes"
-	"io/ioutil"
-	"runtime"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"time"
+	"io/ioutil"
+	"net/http"
+	"strings"
 )
 
 const (
-	apiUrl = "https://push2new.databox.com"
-	clientVersion = "0.1.2"
+	apiUrl        = "https://push.databox.com"
+	clientVersion = "2.0.0"
 )
 
 type Client struct {
@@ -33,19 +33,23 @@ type KPIWrap struct {
 
 func NewClient(pushToken string) *Client {
 	return &Client{
-		PushToken:    pushToken,
-		PushHost:    apiUrl,
+		PushToken: pushToken,
+		PushHost:  apiUrl,
 	}
 }
 
-type ResponseStatus    struct {
-	Status string `json:"status"`
+type ResponseStatus struct {
+	Id      string `json:"id"`
+	Type    string `json:"type"`
+	Message string `json:"message"`
 }
 
 var postRequest = func(client *Client, path string, payload []byte) ([]byte, error) {
-	userAgent := "Databox/" + clientVersion + " (" + runtime.Version() + ")"
+	userAgent := "databox-go/" + clientVersion
+	accept := "application/vnd.databox.v" + strings.Split(clientVersion, ".")[0] + "+json"
 	request, err := http.NewRequest("POST", (apiUrl + path), bytes.NewBuffer(payload))
 	request.Header.Set("User-Agent", userAgent)
+	request.Header.Set("Accept", accept)
 	request.Header.Set("Content-Type", "application/json")
 	request.SetBasicAuth(client.PushToken, "")
 
@@ -59,13 +63,26 @@ var postRequest = func(client *Client, path string, payload []byte) ([]byte, err
 	}
 
 	data, err_3 := ioutil.ReadAll(response.Body)
-	return data, err_3
+	if err_3 != nil {
+		return data, err_3
+	}
+
+	if response.StatusCode != 200 {
+		var responseStatus = &ResponseStatus{}
+		json.Unmarshal(data, &responseStatus)
+		err_4 := errors.New(responseStatus.Type + ": " + responseStatus.Message)
+		return nil, err_4
+	}
+
+	return data, nil
 }
 
 var getRequest = func(client *Client, path string) ([]byte, error) {
-	userAgent := "Databox/" + clientVersion + " (" + runtime.Version() + ")"
+	userAgent := "databox-go/" + clientVersion
+	accept := "application/vnd.databox.v" + strings.Split(clientVersion, ".")[0] + "+json"
 	request, err := http.NewRequest("GET", (apiUrl + path), nil)
 	request.Header.Set("User-Agent", userAgent)
+	request.Header.Set("Accept", accept)
 	request.Header.Set("Content-Type", "application/json")
 	request.SetBasicAuth(client.PushToken, "")
 
@@ -82,40 +99,31 @@ var getRequest = func(client *Client, path string) ([]byte, error) {
 	return data, err_3
 }
 
+type PushRequest struct {
+	Date   string   `json:"date"`
+	Body   KPIWrap  `json:"body"`
+	Errors []string `json:"errors"`
+}
+
+type PushResponse struct {
+	Date string         `json:"date"`
+	Body ResponseStatus `json:"body"`
+}
+
 type LastPush struct {
-	Push           string `json: push`
-	Time           time.Time `json: datetime`
-	NumberOfErrors int `json: no_err`
-	Errors         string `json: err`
-	Keys           string `json: keys`
+	Request  PushRequest  `json:"request"`
+	Response PushResponse `json:"response"`
+	Metrics  []string     `json:"metrics"`
 }
-
-/*
-TODO: Use this for better and fine grained response parsing
-func (lastPush *LastPush) UnmarshalJSON(raw []byte) error {
-	var preParsed map[string]interface{}
-	if err := json.Unmarshal(raw, &preParsed); err != nil {
-		return err
-	}
-
-	parsedTime, err_1 := time.Parse(time.RFC3339, preParsed["datetime"].(string))
-	if err_1 != nil {
-		return err_1
-	}
-
-	lastPush.Time = parsedTime
-	return nil
-}
-*/
 
 func (client *Client) LastPushes(n int) ([]LastPush, error) {
-	response, err := getRequest(client, fmt.Sprintf("/lastpushes/%d", n))
+	response, err := getRequest(client, fmt.Sprintf("/lastpushes?limit=%d", n))
 	if err != nil {
 		return nil, err
 	}
 
 	lastPushes := make([]LastPush, 0)
-	err_1 := json.Unmarshal(response, &lastPushes);
+	err_1 := json.Unmarshal(response, &lastPushes)
 	if err_1 != nil {
 		return nil, err_1
 	}
@@ -135,13 +143,11 @@ func (client *Client) LastPush() (LastPush, error) {
 func (client *Client) Push(kpi *KPI) (*ResponseStatus, error) {
 	payload, err := serializeKPIs([]KPI{*kpi})
 	if err != nil {
-		fmt.Println("serialize")
 		return &ResponseStatus{}, err
 	}
 
 	response, err_2 := postRequest(client, "/", payload)
 	if err_2 != nil {
-		fmt.Println("post response:")
 		return &ResponseStatus{}, err_2
 	}
 
@@ -154,9 +160,9 @@ func (client *Client) Push(kpi *KPI) (*ResponseStatus, error) {
 }
 
 /* Serialisation */
-func (kpi *KPI) ToJsonData() (map[string]interface{}) {
+func (kpi *KPI) ToJsonData() map[string]interface{} {
 	var payload = make(map[string]interface{})
-	payload["$" + kpi.Key] = kpi.Value
+	payload["$"+kpi.Key] = kpi.Value
 
 	if kpi.Date != "" {
 		payload["date"] = kpi.Date
@@ -176,7 +182,7 @@ func serializeKPIs(kpis []KPI) ([]byte, error) {
 		Data: make([]map[string]interface{}, 0),
 	}
 
-	for _, kpi := range (kpis) {
+	for _, kpi := range kpis {
 		wrap.Data = append(wrap.Data, kpi.ToJsonData())
 	}
 
