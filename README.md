@@ -90,15 +90,16 @@ func printPush(push databox.LastPush) {
 
 ```bash
 # develop
-docker run -it --rm -v "$PWD":/usr/local/go/src/databox golang:1.5 bash
+docker run -it --rm -v "$PWD":/usr/local/go/src/databox golang:1.10 bash
 
 # test
-docker run -it --rm -v "$PWD":/usr/local/go/src/databox golang:1.5 make
+docker run -it --rm -v "$PWD":/usr/local/go/src/databox golang:1.10 make
 ```
 
-## Author
-- [Oto Brglez](https://github.com/otobrglez)
-- [Vlada Petrovic](https://github.com/vladapetrovic)
+## Authors
+ -[Oto Brglez](https://github.com/otobrglez)
+ -[Vlada Petrovic](https://github.com/vladapetrovic)
+
 
 [BuildStatus-Url]: https://travis-ci.org/databox/databox-go
 [BuildStatus-Image]: https://travis-ci.org/databox/databox-go.svg                     
