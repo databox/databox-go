@@ -23,7 +23,7 @@ import (
 )
 
 func main() {
-    client := databox.NewClient("<push token>")
+  client := databox.NewClient("<push token>")
 
 	if _, err := client.Push(&databox.KPI{
 		Key:	"temp.ny",
