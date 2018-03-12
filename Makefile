@@ -6,3 +6,7 @@ test:
 
 build:
 	go build ./...
+
+check:
+	gofmt -s -w .
+	go vet .
