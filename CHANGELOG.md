@@ -2,6 +2,8 @@
 Following guidelines of http://keepachangelog.com/
 
 ## [Unreleased]
+
+## [0.2.0] - Mar 12, 2018
 - update to support Databox API version 3
 
 ## [0.1.2] - Feb 1, 2016
@@ -19,7 +21,8 @@ Following guidelines of http://keepachangelog.com/
 - Magical test suite w/ TravisCI support
 - Some documentation to get you going
 
-[Unreleased]: https://github.com/databox/databox-go/compare/0.1.2...master
+[Unreleased]: https://github.com/databox/databox-go/compare/0.2.0...master
+[0.2.0]: https://github.com/databox/databox-go/compare/0.1.2...0.2.0
 [0.1.2]: https://github.com/databox/databox-go/compare/0.1.0...0.1.2
 [0.1.0]: https://github.com/databox/databox-go/compare/0.0.1...0.1.0
 [0.0.1]: https://github.com/databox/databox-go/tree/0.0.1
