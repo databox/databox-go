@@ -92,7 +92,7 @@ var postRequest = func(client *Client, path string, payload []byte) ([]byte, err
 		return data, err3
 	}
 
-	if response.StatusCode != 200 {
+	if response.StatusCode < 200 || response.StatusCode > 299 {
 		var responseStatus = &ResponseStatus{}
 		json.Unmarshal(data, &responseStatus)
 		err4 := errors.New(responseStatus.Type + ": " + responseStatus.Message)
