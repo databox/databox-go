@@ -1,6 +1,7 @@
 package databox
 
 import (
+	"context"
 	"errors"
 	"os"
 	"reflect"
@@ -31,7 +32,7 @@ func TestSimpleInit(t *testing.T) {
 }
 
 func TestLastPush(t *testing.T) {
-	getRequest = func(client *Client, path string) ([]byte, error) {
+	getRequest = func(ctx context.Context, client *Client, path string) ([]byte, error) {
 		return []byte(`[
     {
         "request": {
@@ -79,7 +80,7 @@ func TestKPI_ToJSONData(t *testing.T) {
 }
 
 func TestSuccessfulPush(t *testing.T) {
-	postRequest = func(client *Client, path string, payload []byte) ([]byte, error) {
+	postRequest = func(ctx context.Context, client *Client, path string, payload []byte) ([]byte, error) {
 		return []byte(`{"id":"someRandomId"}`), nil
 	}
 
@@ -93,7 +94,7 @@ func TestSuccessfulPush(t *testing.T) {
 
 func TestFailedPush(t *testing.T) {
 	pushError := errors.New("invalid_json: some error message")
-	postRequest = func(client *Client, path string, payload []byte) ([]byte, error) {
+	postRequest = func(ctx context.Context, client *Client, path string, payload []byte) ([]byte, error) {
 		return []byte(`{"type":"invalid_json","message":"some error message"}`), pushError
 	}
 
@@ -107,7 +108,7 @@ func TestFailedPush(t *testing.T) {
 }
 
 func TestWithAdditionalAttributes(t *testing.T) {
-	postRequest = func(client *Client, path string, payload []byte) ([]byte, error) {
+	postRequest = func(ctx context.Context, client *Client, path string, payload []byte) ([]byte, error) {
 		return []byte(`{"id":"someRandomId"}`), nil
 	}
 

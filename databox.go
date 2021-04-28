@@ -2,6 +2,7 @@ package databox
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -77,14 +78,13 @@ func NewClient(pushToken string) *Client {
 	}
 }
 
-var postRequest = func(client *Client, path string, payload []byte) ([]byte, error) {
+var postRequest = func(ctx context.Context, client *Client, path string, payload []byte) ([]byte, error) {
 	userAgent := "databox-go/" + clientVersion
 	accept := "application/vnd.databox.v" + strings.Split(clientVersion, ".")[0] + "+json"
-	request, err := http.NewRequest("POST", (apiURL + path), bytes.NewBuffer(payload))
+	request, err := http.NewRequestWithContext(ctx, "POST", apiURL+path, bytes.NewBuffer(payload))
 	if err != nil {
 		return nil, fmt.Errorf("creating request object: %w", err)
 	}
-
 	request.Header.Set("User-Agent", userAgent)
 	request.Header.Set("Accept", accept)
 	request.Header.Set("Content-Type", "application/json")
@@ -111,10 +111,10 @@ var postRequest = func(client *Client, path string, payload []byte) ([]byte, err
 	return data, nil
 }
 
-var getRequest = func(client *Client, path string) ([]byte, error) {
+var getRequest = func(ctx context.Context, client *Client, path string) ([]byte, error) {
 	userAgent := "databox-go/" + clientVersion
 	accept := "application/vnd.databox.v" + strings.Split(clientVersion, ".")[0] + "+json"
-	request, err := http.NewRequest("GET", (apiURL + path), nil)
+	request, err := http.NewRequestWithContext(ctx, "GET", apiURL+path, nil)
 	if err != nil {
 		return nil, fmt.Errorf("creating request object: %w", err)
 	}
@@ -137,7 +137,11 @@ var getRequest = func(client *Client, path string) ([]byte, error) {
 
 // LastPushes returns n last pushes from Databox service
 func (client *Client) LastPushes(n int) ([]LastPush, error) {
-	response, err := getRequest(client, fmt.Sprintf("/lastpushes?limit=%d", n))
+	return client.LastPushesCtx(context.Background(), n)
+}
+
+func (client *Client) LastPushesCtx(ctx context.Context, n int) ([]LastPush, error) {
+	response, err := getRequest(ctx, client, fmt.Sprintf("/lastpushes?limit=%d", n))
 	if err != nil {
 		return nil, fmt.Errorf("requesting /lastpushes from API: %w", err)
 	}
@@ -152,7 +156,11 @@ func (client *Client) LastPushes(n int) ([]LastPush, error) {
 
 // LastPush returns latest push from Databox service
 func (client *Client) LastPush() (LastPush, error) {
-	lastPushes, err := client.LastPushes(1)
+	return client.LastPushCtx(context.Background())
+}
+
+func (client *Client) LastPushCtx(ctx context.Context) (LastPush, error) {
+	lastPushes, err := client.LastPushesCtx(ctx, 1)
 	if err != nil {
 		return LastPush{}, err
 	}
@@ -161,12 +169,16 @@ func (client *Client) LastPush() (LastPush, error) {
 
 // Push makes push request against Databox service
 func (client *Client) Push(kpi *KPI) (*ResponseStatus, error) {
+	return client.PushCtx(context.Background(), kpi)
+}
+
+func (client *Client) PushCtx(ctx context.Context, kpi *KPI) (*ResponseStatus, error) {
 	payload, err := serializeKPIs([]KPI{*kpi})
 	if err != nil {
 		return nil, fmt.Errorf("preparing request: %w", err)
 	}
 
-	response, err := postRequest(client, "/", payload)
+	response, err := postRequest(ctx, client, "/", payload)
 	if err != nil {
 		return nil, fmt.Errorf("sending request: %w", err)
 	}
