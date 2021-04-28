@@ -94,6 +94,7 @@ func (c *Client) postRequest(ctx context.Context, path string, payload []byte) (
 	if err != nil {
 		return nil, fmt.Errorf("executing HTTP request: %w", err)
 	}
+	defer response.Body.Close()
 
 	data, err := ioutil.ReadAll(response.Body)
 	if err != nil {
@@ -127,6 +128,7 @@ func (c *Client) getRequest(ctx context.Context, path string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("executing HTTP request: %w", err)
 	}
+	defer response.Body.Close()
 
 	data, err := ioutil.ReadAll(response.Body)
 	if err != nil {
