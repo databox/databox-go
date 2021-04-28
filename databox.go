@@ -13,7 +13,7 @@ import (
 
 const (
 	apiURL        = "https://push.databox.com"
-	clientVersion = "2.0.0"
+	clientVersion = "2.1.0"
 )
 
 // Client struct holds push token and host to Databox service
