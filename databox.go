@@ -135,11 +135,13 @@ func (c *Client) getRequest(ctx context.Context, path string) ([]byte, error) {
 	return data, nil
 }
 
-// LastPushes returns n last pushes from Databox service
+// LastPushes returns n last pushes from Databox service.
 func (c *Client) LastPushes(n int) ([]LastPush, error) {
 	return c.LastPushesCtx(context.Background(), n)
 }
 
+// LastPushesCtx returns n last pushes from Databox service. It terminates the
+// request on context cancellation.
 func (c *Client) LastPushesCtx(ctx context.Context, n int) ([]LastPush, error) {
 	path := fmt.Sprintf("/lastpushes?limit=%d", n)
 	response, err := c.getRequest(ctx, path)
@@ -155,11 +157,13 @@ func (c *Client) LastPushesCtx(ctx context.Context, n int) ([]LastPush, error) {
 	return lastPushes, nil
 }
 
-// LastPush returns latest push from Databox service
+// LastPush returns latest push from Databox service.
 func (c *Client) LastPush() (LastPush, error) {
 	return c.LastPushCtx(context.Background())
 }
 
+// LastPushCtx returns latest push from Databox service. It terminates the
+// request on context cancellation.
 func (c *Client) LastPushCtx(ctx context.Context) (LastPush, error) {
 	lastPushes, err := c.LastPushesCtx(ctx, 1)
 	if err != nil {
@@ -168,11 +172,13 @@ func (c *Client) LastPushCtx(ctx context.Context) (LastPush, error) {
 	return lastPushes[0], nil
 }
 
-// Push makes push request against Databox service
+// Push makes push request against Databox service.
 func (c *Client) Push(kpi *KPI) (*ResponseStatus, error) {
 	return c.PushCtx(context.Background(), kpi)
 }
 
+// PushCtx makes push request against Databox service. It terminates the
+// request on context cancellation.
 func (c *Client) PushCtx(ctx context.Context, kpi *KPI) (*ResponseStatus, error) {
 	payload, err := serializeKPIs([]KPI{*kpi})
 	if err != nil {
