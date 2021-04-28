@@ -73,30 +73,31 @@ var postRequest = func(client *Client, path string, payload []byte) ([]byte, err
 	userAgent := "databox-go/" + clientVersion
 	accept := "application/vnd.databox.v" + strings.Split(clientVersion, ".")[0] + "+json"
 	request, err := http.NewRequest("POST", (apiURL + path), bytes.NewBuffer(payload))
+	if err != nil {
+		return nil, fmt.Errorf("creating request object: %w", err)
+	}
+
 	request.Header.Set("User-Agent", userAgent)
 	request.Header.Set("Accept", accept)
 	request.Header.Set("Content-Type", "application/json")
 	request.SetBasicAuth(client.PushToken, "")
 
+	response, err := (&http.Client{}).Do(request)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("executing HTTP request: %w", err)
 	}
 
-	response, err2 := (&http.Client{}).Do(request)
-	if err2 != nil {
-		return nil, err2
-	}
-
-	data, err3 := ioutil.ReadAll(response.Body)
-	if err3 != nil {
-		return data, err3
+	data, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return data, fmt.Errorf("reading response body: %w", err)
 	}
 
 	if response.StatusCode < 200 || response.StatusCode > 299 {
 		var responseStatus = &ResponseStatus{}
-		json.Unmarshal(data, &responseStatus)
-		err4 := errors.New(responseStatus.Type + ": " + responseStatus.Message)
-		return nil, err4
+		if err := json.Unmarshal(data, &responseStatus); err != nil {
+			return nil, fmt.Errorf("can't unmarshal data[%s]: %w", string(data), err)
+		}
+		return nil, errors.New(responseStatus.Type + ": " + responseStatus.Message)
 	}
 
 	return data, nil
@@ -106,35 +107,36 @@ var getRequest = func(client *Client, path string) ([]byte, error) {
 	userAgent := "databox-go/" + clientVersion
 	accept := "application/vnd.databox.v" + strings.Split(clientVersion, ".")[0] + "+json"
 	request, err := http.NewRequest("GET", (apiURL + path), nil)
+	if err != nil {
+		return nil, fmt.Errorf("creating request object: %w", err)
+	}
 	request.Header.Set("User-Agent", userAgent)
 	request.Header.Set("Accept", accept)
 	request.Header.Set("Content-Type", "application/json")
 	request.SetBasicAuth(client.PushToken, "")
 
+	response, err := (&http.Client{}).Do(request)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("executing HTTP request: %w", err)
 	}
 
-	response, err2 := (&http.Client{}).Do(request)
-	if err2 != nil {
-		return nil, err2
+	data, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("reading response body: %w", err)
 	}
-
-	data, err3 := ioutil.ReadAll(response.Body)
-	return data, err3
+	return data, nil
 }
 
 // LastPushes returns n last pushes from Databox service
 func (client *Client) LastPushes(n int) ([]LastPush, error) {
 	response, err := getRequest(client, fmt.Sprintf("/lastpushes?limit=%d", n))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("requesting /lastpushes from API: %w", err)
 	}
 
 	lastPushes := make([]LastPush, 0)
-	err1 := json.Unmarshal(response, &lastPushes)
-	if err1 != nil {
-		return nil, err1
+	if err := json.Unmarshal(response, &lastPushes); err != nil {
+		return nil, fmt.Errorf("can't unmarshal response[%s]: %w", string(response), err)
 	}
 
 	return lastPushes, nil
@@ -146,7 +148,6 @@ func (client *Client) LastPush() (LastPush, error) {
 	if err != nil {
 		return LastPush{}, err
 	}
-
 	return lastPushes[0], nil
 }
 
@@ -154,17 +155,17 @@ func (client *Client) LastPush() (LastPush, error) {
 func (client *Client) Push(kpi *KPI) (*ResponseStatus, error) {
 	payload, err := serializeKPIs([]KPI{*kpi})
 	if err != nil {
-		return &ResponseStatus{}, err
+		return nil, fmt.Errorf("preparing request: %w", err)
 	}
 
-	response, err2 := postRequest(client, "/", payload)
-	if err2 != nil {
-		return &ResponseStatus{}, err2
+	response, err := postRequest(client, "/", payload)
+	if err != nil {
+		return nil, fmt.Errorf("sending request: %w", err)
 	}
 
 	var responseStatus = &ResponseStatus{}
-	if err3 := json.Unmarshal(response, &responseStatus); err3 != nil {
-		return &ResponseStatus{}, err3
+	if err := json.Unmarshal(response, &responseStatus); err != nil {
+		return nil, fmt.Errorf("can't unmarshal respoonse[%s]: %w", string(response), err)
 	}
 
 	return responseStatus, nil
