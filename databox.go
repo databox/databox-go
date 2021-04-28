@@ -17,8 +17,9 @@ const (
 
 // Client struct holds push token and host to Databox service
 type Client struct {
-	PushToken string
-	PushHost  string
+	PushToken  string
+	PushHost   string
+	HTTPClient *http.Client
 }
 
 // KPI struct holds information about item in push request
@@ -63,9 +64,16 @@ type LastPush struct {
 
 // NewClient returns object for making calls against a Databox service.
 func NewClient(pushToken string) *Client {
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	// We use only one host: push.databox.com
+	transport.MaxIdleConnsPerHost = transport.MaxIdleConns
+
 	return &Client{
 		PushToken: pushToken,
 		PushHost:  apiURL,
+		HTTPClient: &http.Client{
+			Transport: transport,
+		},
 	}
 }
 
@@ -82,7 +90,7 @@ var postRequest = func(client *Client, path string, payload []byte) ([]byte, err
 	request.Header.Set("Content-Type", "application/json")
 	request.SetBasicAuth(client.PushToken, "")
 
-	response, err := (&http.Client{}).Do(request)
+	response, err := client.HTTPClient.Do(request)
 	if err != nil {
 		return nil, fmt.Errorf("executing HTTP request: %w", err)
 	}
@@ -115,7 +123,7 @@ var getRequest = func(client *Client, path string) ([]byte, error) {
 	request.Header.Set("Content-Type", "application/json")
 	request.SetBasicAuth(client.PushToken, "")
 
-	response, err := (&http.Client{}).Do(request)
+	response, err := client.HTTPClient.Do(request)
 	if err != nil {
 		return nil, fmt.Errorf("executing HTTP request: %w", err)
 	}
