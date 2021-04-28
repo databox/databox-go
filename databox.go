@@ -78,7 +78,7 @@ func NewClient(pushToken string) *Client {
 	}
 }
 
-var postRequest = func(ctx context.Context, client *Client, path string, payload []byte) ([]byte, error) {
+func (c *Client) postRequest(ctx context.Context, path string, payload []byte) ([]byte, error) {
 	userAgent := "databox-go/" + clientVersion
 	accept := "application/vnd.databox.v" + strings.Split(clientVersion, ".")[0] + "+json"
 	request, err := http.NewRequestWithContext(ctx, "POST", apiURL+path, bytes.NewBuffer(payload))
@@ -88,9 +88,9 @@ var postRequest = func(ctx context.Context, client *Client, path string, payload
 	request.Header.Set("User-Agent", userAgent)
 	request.Header.Set("Accept", accept)
 	request.Header.Set("Content-Type", "application/json")
-	request.SetBasicAuth(client.PushToken, "")
+	request.SetBasicAuth(c.PushToken, "")
 
-	response, err := client.HTTPClient.Do(request)
+	response, err := c.HTTPClient.Do(request)
 	if err != nil {
 		return nil, fmt.Errorf("executing HTTP request: %w", err)
 	}
@@ -111,7 +111,7 @@ var postRequest = func(ctx context.Context, client *Client, path string, payload
 	return data, nil
 }
 
-var getRequest = func(ctx context.Context, client *Client, path string) ([]byte, error) {
+func (c *Client) getRequest(ctx context.Context, path string) ([]byte, error) {
 	userAgent := "databox-go/" + clientVersion
 	accept := "application/vnd.databox.v" + strings.Split(clientVersion, ".")[0] + "+json"
 	request, err := http.NewRequestWithContext(ctx, "GET", apiURL+path, nil)
@@ -121,9 +121,9 @@ var getRequest = func(ctx context.Context, client *Client, path string) ([]byte,
 	request.Header.Set("User-Agent", userAgent)
 	request.Header.Set("Accept", accept)
 	request.Header.Set("Content-Type", "application/json")
-	request.SetBasicAuth(client.PushToken, "")
+	request.SetBasicAuth(c.PushToken, "")
 
-	response, err := client.HTTPClient.Do(request)
+	response, err := c.HTTPClient.Do(request)
 	if err != nil {
 		return nil, fmt.Errorf("executing HTTP request: %w", err)
 	}
@@ -136,12 +136,13 @@ var getRequest = func(ctx context.Context, client *Client, path string) ([]byte,
 }
 
 // LastPushes returns n last pushes from Databox service
-func (client *Client) LastPushes(n int) ([]LastPush, error) {
-	return client.LastPushesCtx(context.Background(), n)
+func (c *Client) LastPushes(n int) ([]LastPush, error) {
+	return c.LastPushesCtx(context.Background(), n)
 }
 
-func (client *Client) LastPushesCtx(ctx context.Context, n int) ([]LastPush, error) {
-	response, err := getRequest(ctx, client, fmt.Sprintf("/lastpushes?limit=%d", n))
+func (c *Client) LastPushesCtx(ctx context.Context, n int) ([]LastPush, error) {
+	path := fmt.Sprintf("/lastpushes?limit=%d", n)
+	response, err := c.getRequest(ctx, path)
 	if err != nil {
 		return nil, fmt.Errorf("requesting /lastpushes from API: %w", err)
 	}
@@ -155,12 +156,12 @@ func (client *Client) LastPushesCtx(ctx context.Context, n int) ([]LastPush, err
 }
 
 // LastPush returns latest push from Databox service
-func (client *Client) LastPush() (LastPush, error) {
-	return client.LastPushCtx(context.Background())
+func (c *Client) LastPush() (LastPush, error) {
+	return c.LastPushCtx(context.Background())
 }
 
-func (client *Client) LastPushCtx(ctx context.Context) (LastPush, error) {
-	lastPushes, err := client.LastPushesCtx(ctx, 1)
+func (c *Client) LastPushCtx(ctx context.Context) (LastPush, error) {
+	lastPushes, err := c.LastPushesCtx(ctx, 1)
 	if err != nil {
 		return LastPush{}, err
 	}
@@ -168,17 +169,17 @@ func (client *Client) LastPushCtx(ctx context.Context) (LastPush, error) {
 }
 
 // Push makes push request against Databox service
-func (client *Client) Push(kpi *KPI) (*ResponseStatus, error) {
-	return client.PushCtx(context.Background(), kpi)
+func (c *Client) Push(kpi *KPI) (*ResponseStatus, error) {
+	return c.PushCtx(context.Background(), kpi)
 }
 
-func (client *Client) PushCtx(ctx context.Context, kpi *KPI) (*ResponseStatus, error) {
+func (c *Client) PushCtx(ctx context.Context, kpi *KPI) (*ResponseStatus, error) {
 	payload, err := serializeKPIs([]KPI{*kpi})
 	if err != nil {
 		return nil, fmt.Errorf("preparing request: %w", err)
 	}
 
-	response, err := postRequest(ctx, client, "/", payload)
+	response, err := c.postRequest(ctx, "/", payload)
 	if err != nil {
 		return nil, fmt.Errorf("sending request: %w", err)
 	}
