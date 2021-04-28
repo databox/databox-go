@@ -2,15 +2,11 @@ package databox
 
 import (
 	"errors"
-	_ "fmt"
 	"os"
 	"reflect"
 	"testing"
 	"time"
 )
-
-var originalPostRequest = postRequest
-var originalGetRequest = getRequest
 
 func getToken() (pushToken string) {
 	pushToken = "adxg1kq5a4g04k0wk0s4wkssow8osw84"
