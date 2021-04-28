@@ -171,6 +171,9 @@ func (c *Client) LastPushCtx(ctx context.Context) (LastPush, error) {
 	if err != nil {
 		return LastPush{}, err
 	}
+	if len(lastPushes) == 0 {
+		return LastPush{}, errors.New("no last push")
+	}
 	return lastPushes[0], nil
 }
 
