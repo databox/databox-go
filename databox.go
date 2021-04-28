@@ -178,14 +178,14 @@ func (c *Client) LastPushCtx(ctx context.Context) (LastPush, error) {
 }
 
 // Push makes push request against Databox service.
-func (c *Client) Push(kpis ...*KPI) (*ResponseStatus, error) {
-	return c.PushCtx(context.Background(), kpis...)
+func (c *Client) Push(kpi *KPI) (*ResponseStatus, error) {
+	return c.PushCtx(context.Background(), kpi)
 }
 
 // PushCtx makes push request against Databox service. It terminates the
 // request on context cancellation.
-func (c *Client) PushCtx(ctx context.Context, kpis ...*KPI) (*ResponseStatus, error) {
-	payload, err := serializeKPIs(kpis)
+func (c *Client) PushCtx(ctx context.Context, kpi *KPI) (*ResponseStatus, error) {
+	payload, err := serializeKPIs([]KPI{*kpi})
 	if err != nil {
 		return nil, fmt.Errorf("preparing request: %w", err)
 	}
@@ -222,15 +222,12 @@ func (kpi *KPI) ToJSONData() map[string]interface{} {
 }
 
 // serializeKPIs traverse all kpis and return json representation
-func serializeKPIs(kpis []*KPI) ([]byte, error) {
+func serializeKPIs(kpis []KPI) ([]byte, error) {
 	wrap := KPIWrap{
 		Data: make([]map[string]interface{}, 0),
 	}
 
 	for _, kpi := range kpis {
-		if kpi == nil {
-			continue
-		}
 		wrap.Data = append(wrap.Data, kpi.ToJSONData())
 	}
 
