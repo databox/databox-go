@@ -34,6 +34,7 @@ type KPI struct {
 // KPIWrap struct is just a wrapper around KPI with root key "data"
 type KPIWrap struct {
 	Data []map[string]interface{} `json:"data"`
+	Meta map[string]interface{}   `json:"meta,omitempty"`
 }
 
 // ResponseStatus struct is for different response variations
@@ -185,7 +186,33 @@ func (c *Client) Push(kpi *KPI) (*ResponseStatus, error) {
 // PushCtx makes push request against Databox service. It terminates the
 // request on context cancellation.
 func (c *Client) PushCtx(ctx context.Context, kpi *KPI) (*ResponseStatus, error) {
-	payload, err := serializeKPIs([]KPI{*kpi})
+	payload, err := serializeKPIs([]KPI{*kpi}, false)
+	if err != nil {
+		return nil, fmt.Errorf("preparing request: %w", err)
+	}
+
+	response, err := c.postRequest(ctx, "/", payload)
+	if err != nil {
+		return nil, fmt.Errorf("sending request: %w", err)
+	}
+
+	var responseStatus = &ResponseStatus{}
+	if err := json.Unmarshal(response, &responseStatus); err != nil {
+		return nil, fmt.Errorf("can't unmarshal respoonse[%s]: %w", string(response), err)
+	}
+
+	return responseStatus, nil
+}
+
+// TODO document forcePush attribute
+//  It seems like secret option implemented in Go and Python SDK only.
+//  Not documented in both.
+//  https://github.com/databox/databox-python/blob/master/databox/__init__.py#L108
+
+// InsertAll makes insertAll request against Databox service. It terminates the
+// request on context cancellation.
+func (c *Client) InsertAll(ctx context.Context, kpis []KPI, forcePush bool) (*ResponseStatus, error) {
+	payload, err := serializeKPIs(kpis, forcePush)
 	if err != nil {
 		return nil, fmt.Errorf("preparing request: %w", err)
 	}
@@ -222,9 +249,14 @@ func (kpi *KPI) ToJSONData() map[string]interface{} {
 }
 
 // serializeKPIs traverse all kpis and return json representation
-func serializeKPIs(kpis []KPI) ([]byte, error) {
+func serializeKPIs(kpis []KPI, forcePush bool) ([]byte, error) {
 	wrap := KPIWrap{
 		Data: make([]map[string]interface{}, 0),
+	}
+	if forcePush {
+		wrap.Meta = map[string]interface{}{
+			"ensure_unique": true,
+		}
 	}
 
 	for _, kpi := range kpis {
