@@ -12,6 +12,15 @@ import (
 )
 
 const (
+	// DateFormat will be converted to '2006-01-02 00:00:00+00:00'.
+	DateFormat = "2006-01-02"
+	// DateTimeFormat will be converted to '2006-01-02 15:04:05+00:00'.
+	DateTimeFormat = "2006-01-02 15:04:05"
+	// DateTimeTZFormat will be stored as was sent.
+	DateTimeTZFormat = "2006-01-02 15:04:05-07:00"
+)
+
+const (
 	apiURL        = "https://push.databox.com"
 	clientVersion = "2.1.0"
 )
@@ -25,9 +34,23 @@ type Client struct {
 
 // KPI struct holds information about item in push request
 type KPI struct {
-	Key        string
-	Value      float32
-	Date       string
+	// Key is key of the metric.
+	Key string
+	// Value is value of the metric.
+	Value float32
+	// Metrics can contain other metrics if you want to send multiple of them with same
+	// attributes.
+	Metrics map[string]float32
+	// Date specifies data or datetime of the metric. It's optional. The Date should
+	// have been formatted as Date in DateFormat, or datetime in DateTimeTZFormat.
+	// Timezone is UTC if DateFormat or DateTimeFormat is used.
+	Date string
+	// Unit describes value of the metric. It's optional. Any string can be used as
+	// unit.
+	Unit string
+	// Attributes can contain arbitrary information for metrics. If you send an
+	// attribute along with multiple metrics, the attribute will be added to each
+	// metric.
 	Attributes map[string]interface{}
 }
 
@@ -233,16 +256,24 @@ func (c *Client) InsertAll(ctx context.Context, kpis []KPI, forcePush bool) (*Re
 // ToJSONData serializes KPI to json
 func (kpi *KPI) ToJSONData() map[string]interface{} {
 	var payload = make(map[string]interface{})
+
+	// store attributes first so it can't overwrite other values.
+	for key, value := range kpi.Attributes {
+		payload[key] = value
+	}
+
+	for key, value := range kpi.Metrics {
+		payload["$"+key] = value
+	}
+
 	payload["$"+kpi.Key] = kpi.Value
 
 	if kpi.Date != "" {
 		payload["date"] = kpi.Date
 	}
 
-	if len(kpi.Attributes) != 0 {
-		for key, value := range kpi.Attributes {
-			payload[key] = value
-		}
+	if kpi.Unit != "" {
+		payload["unit"] = kpi.Unit
 	}
 
 	return payload
