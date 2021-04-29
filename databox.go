@@ -266,7 +266,9 @@ func (kpi *KPI) ToJSONData() map[string]interface{} {
 		payload["$"+key] = value
 	}
 
-	payload["$"+kpi.Key] = kpi.Value
+	if kpi.Key != "" {
+		payload["$"+kpi.Key] = kpi.Value
+	}
 
 	if kpi.Date != "" {
 		payload["date"] = kpi.Date
