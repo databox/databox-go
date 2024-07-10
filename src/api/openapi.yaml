@@ -1,0 +1,127 @@
+openapi: 3.0.3
+info:
+  description: Push API resources Open API documentation
+  title: Static OpenAPI document of Push API resource
+  version: 0.3.15-sdk.5
+servers:
+- description: Dev mode server description
+  url: https://push.databox.com
+security:
+- basicAuth: []
+paths:
+  /data:
+    delete:
+      responses:
+        "200":
+          description: OK
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/PushData'
+              type: array
+          application/vnd.databox.v2+json:
+            schema:
+              items:
+                $ref: '#/components/schemas/PushData'
+              type: array
+      responses:
+        "200":
+          description: OK
+  /data/{metricKey}:
+    delete:
+      parameters:
+      - explode: false
+        in: path
+        name: metricKey
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: OK
+  /metrickeys:
+    get:
+      responses:
+        "200":
+          description: OK
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+          application/vnd.databox.v2+json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: OK
+  /ping:
+    get:
+      responses:
+        "200":
+          description: OK
+components:
+  schemas:
+    ApiResponse:
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+      type: object
+    PushData:
+      example:
+        date: date
+        periodTo: periodTo
+        unit: unit
+        periodFrom: periodFrom
+        attributes:
+        - value: value
+          key: key
+        - value: value
+          key: key
+        value: 0.8008282
+        key: key
+      properties:
+        attributes:
+          items:
+            $ref: '#/components/schemas/PushDataAttribute'
+          type: array
+        date:
+          type: string
+        key:
+          type: string
+        periodFrom:
+          type: string
+        periodTo:
+          type: string
+        unit:
+          type: string
+        value:
+          format: float
+          type: number
+      type: object
+    PushDataAttribute:
+      example:
+        value: value
+        key: key
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+      type: object
+    State:
+      enum:
+      - DOWN
+      - UP
+      type: string
+  securitySchemes:
+    basicAuth:
+      scheme: basic
+      type: http
