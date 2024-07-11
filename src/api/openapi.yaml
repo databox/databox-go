@@ -2,13 +2,35 @@ openapi: 3.0.3
 info:
   description: Push API resources Open API documentation
   title: Static OpenAPI document of Push API resource
-  version: 0.3.15-sdk.5
+  version: 0.3.15-sdk.6
 servers:
 - description: Dev mode server description
   url: https://push.databox.com
 security:
 - basicAuth: []
 paths:
+  /metrickeys:
+    get:
+      responses:
+        "200":
+          description: OK
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+          application/vnd.databox.v2+json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: OK
+  /ping:
+    get:
+      responses:
+        "200":
+          description: OK
   /data:
     delete:
       responses:
@@ -40,28 +62,6 @@ paths:
         schema:
           type: string
         style: simple
-      responses:
-        "200":
-          description: OK
-  /metrickeys:
-    get:
-      responses:
-        "200":
-          description: OK
-    post:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-          application/vnd.databox.v2+json:
-            schema:
-              type: object
-      responses:
-        "200":
-          description: OK
-  /ping:
-    get:
       responses:
         "200":
           description: OK
