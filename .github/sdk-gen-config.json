@@ -1,4 +1,5 @@
 {
   "packageVersion": "{VERSION}",
-  "packageName": "databox"
+  "packageName": "databox",
+  "goVersion":"1.22"
 }
