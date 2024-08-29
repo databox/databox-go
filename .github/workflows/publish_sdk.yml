@@ -36,6 +36,10 @@ jobs:
         with:
           release_id: ${{ needs.release_draft.outputs.release_id }}
 
+      - name: "Update go index"
+        run: |
+          GOPROXY=proxy.golang.org go list -m github.com/${{ github.repository }}@${{ needs.release_draft.outputs.release_tag }}
+
   post_slack_job:
     name: Post info to Slack in #engeering-releases channel
     needs:
