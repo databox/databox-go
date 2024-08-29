@@ -25,6 +25,7 @@ version-resolver:
     labels:
       - 'patch'
   default: patch
+version-template: v$MAJOR.$MINOR.$PATCH
 template: |
   ## Changes
 
