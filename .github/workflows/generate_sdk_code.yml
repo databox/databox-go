@@ -77,7 +77,7 @@ jobs:
       - name: Generate SDK
         run: |
           java --version
-          java -jar ${{ runner.temp }}/openapi-generator-cli.jar generate -i ${{ runner.temp }}/openapispec/openapi.yml -g go -o ./src -c ${{ runner.temp }}/${{ env.CONFIG_FILE }} --skip-validate-spec
+          java -jar ${{ runner.temp }}/openapi-generator-cli.jar generate -i ${{ runner.temp }}/openapispec/openapi.yml -g go -o ./src -c ${{ runner.temp }}/${{ env.CONFIG_FILE }} --skip-validate-spec -t ./codegen-template
           cp ./src/README.md ./README.md
           cp -r ./src/docs ./docs
 
