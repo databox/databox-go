@@ -61,7 +61,7 @@ jobs:
 
       - name: Remove old SDK
         run: |
-          rm -rf src/*
+          rm -rf databox/*
           rm -rf docs/*
           rm -f go.mod
           rm -f go.sum
@@ -79,12 +79,14 @@ jobs:
       - name: Generate SDK
         run: |
           java --version
-          java -jar ${{ runner.temp }}/openapi-generator-cli.jar generate -i ${{ runner.temp }}/openapispec/openapi.yml -g go -o ./src -c ${{ runner.temp }}/${{ env.CONFIG_FILE }} --skip-validate-spec -t ./codegen-template
-          cp ./src/README.md ./README.md
-          cp -r ./src/docs ./docs
-          cp ./src/go.mod ./go.mod
-          cp ./src/go.sum ./go.sum
-
+          java -jar ${{ runner.temp }}/openapi-generator-cli.jar generate -i ${{ runner.temp }}/openapispec/openapi.yml -g go -o ./databox -c ${{ runner.temp }}/${{ env.CONFIG_FILE }} --skip-validate-spec -t ./codegen-template
+          cp ./databox/README.md ./README.md
+          cp -r ./databox/docs ./docs
+          cp ./databox/go.mod ./go.mod
+          cp ./databox/go.sum ./go.sum
+          rm -f ./databox/go.mod
+          rm -f ./databox/go.sum
+          
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v6
