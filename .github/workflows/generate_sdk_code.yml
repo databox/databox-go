@@ -81,7 +81,7 @@ jobs:
           java --version
           java -jar ${{ runner.temp }}/openapi-generator-cli.jar generate -i ${{ runner.temp }}/openapispec/openapi.yml -g go -o ./databox -c ${{ runner.temp }}/${{ env.CONFIG_FILE }} --skip-validate-spec -t ./codegen-template
           cp ./databox/README.md ./README.md
-          cp -r ./databox/docs ./docs
+          cp -r ./databox/docs ./
           cp ./databox/go.mod ./go.mod
           cp ./databox/go.sum ./go.sum
           rm -f ./databox/go.mod
