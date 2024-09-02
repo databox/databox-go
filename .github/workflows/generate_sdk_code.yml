@@ -63,6 +63,8 @@ jobs:
         run: |
           rm -rf src/*
           rm -rf docs/*
+          rm -f go.mod
+          rm -f go.sum
 
       - name: Set API and SDK versions
         run: |
@@ -80,6 +82,8 @@ jobs:
           java -jar ${{ runner.temp }}/openapi-generator-cli.jar generate -i ${{ runner.temp }}/openapispec/openapi.yml -g go -o ./src -c ${{ runner.temp }}/${{ env.CONFIG_FILE }} --skip-validate-spec -t ./codegen-template
           cp ./src/README.md ./README.md
           cp -r ./src/docs ./docs
+          cp ./src/go.mod ./go.mod
+          cp ./src/go.sum ./go.sum
 
       - name: Create Pull Request
         id: cpr

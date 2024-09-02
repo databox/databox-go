@@ -1,6 +1,6 @@
 {
   "packageVersion": "{VERSION}",
-  "packageName": "databox",
+  "packageName": "databox-go",
   "goVersion":"1.22",
   "goModule": "github.com/databox/databox-go"
 }
