@@ -62,7 +62,6 @@ jobs:
       - name: Remove old SDK
         run: |
           rm -rf databox/*
-          rm -rf docs/*
           rm -f go.mod
           rm -f go.sum
 
@@ -79,9 +78,8 @@ jobs:
       - name: Generate SDK
         run: |
           java --version
-          java -jar ${{ runner.temp }}/openapi-generator-cli.jar generate -i ${{ runner.temp }}/openapispec/openapi.yml -g go -o ./databox -c ${{ runner.temp }}/${{ env.CONFIG_FILE }} --skip-validate-spec -t ./codegen-template
+          java -jar ${{ runner.temp }}/openapi-generator-cli.jar generate -i ${{ runner.temp }}/openapispec/openapi.yml -g go -o ./databox -c ${{ runner.temp }}/${{ env.CONFIG_FILE }} --skip-validate-spec
           cp ./databox/README.md ./README.md
-          cp -r ./databox/docs ./
           cp ./databox/go.mod ./go.mod
           cp ./databox/go.sum ./go.sum
           rm -f ./databox/go.mod
