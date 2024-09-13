@@ -1,5 +1,5 @@
 # Databox
-This package is designed to consume the Databox Push API functionality via a Java client.
+This package is designed to consume the Databox Push API functionality.
 
 ## Installation
 
