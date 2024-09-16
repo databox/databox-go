@@ -4,11 +4,12 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	databox "github.com/databox/databox-go/databox"
 )
 
-const t = "<token>" // Your Databox token
+const t = "26c8df25ec394084bd7c0d3d018e6e3c" // Your Databox token
 
 func main() {
 
@@ -16,20 +17,31 @@ func main() {
 	auth := context.WithValue(context.Background(), databox.ContextBasicAuth, databox.BasicAuth{UserName: t})
 
 	// Create a configuration
-	configuration := databox.NewConfiguration()
-	configuration.DefaultHeader["Content-Type"] = "application/json"
-	configuration.DefaultHeader["Accept"] = "application/vnd.databox.v2+json"
+	cfg := databox.NewConfiguration()
+	cfg.DefaultHeader["Content-Type"] = "application/json"
+	cfg.DefaultHeader["Accept"] = "application/vnd.databox.v2+json"
 
 	// Create an API client
-	apiClient := databox.NewAPIClient(configuration)
+	api := databox.NewAPIClient(cfg)
 
-	// Create a new PushData object
+	// Create a new PushDataAttribute object - this is optional and represent the dimensions of the data
+	a := databox.NewPushDataAttribute()
+	a.SetKey("currency")
+	a.SetValue("USD")
+
+	var d []databox.PushDataAttribute
+	d = append(d, *a)
+
+	// Create a new PushData object and set the data
 	data := databox.NewPushData()
-	data.SetKey("test")
-	data.SetValue(1.0)
+	data.SetKey("sales")
+	data.SetValue(100.0)
+	data.SetDate(time.Now().UTC().Format(time.RFC3339))
+	data.SetUnit("USD")
+	data.SetAttributes(d)
 
 	// Push the data
-	r, err := apiClient.DefaultAPI.DataPost(auth).PushData([]databox.PushData{*data}).Execute()
+	r, err := api.DefaultAPI.DataPost(auth).PushData([]databox.PushData{*data}).Execute()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error when calling `DefaultAPI.DataPost``: %v\n", err)
 	}
