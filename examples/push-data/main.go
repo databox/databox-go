@@ -9,7 +9,7 @@ import (
 	databox "github.com/databox/databox-go/databox"
 )
 
-const t = "26c8df25ec394084bd7c0d3d018e6e3c" // Your Databox token
+const t = "<token>" // Your Databox token
 
 func main() {
 
